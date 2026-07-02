@@ -10,8 +10,7 @@ Description: Tools for MALDI-TOF mass spectrometry workflows in R, covering the
     kernel-density-based peak detection (including shoulder peaks), peak-quality
     metrics and filtering, and cohort feature analysis. Performance-critical
     routines are implemented in C++ via 'Rcpp'.
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+License: MIT + file LICENSE
 Encoding: UTF-8
 Imports:
     Rcpp,

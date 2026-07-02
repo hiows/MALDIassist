@@ -13,6 +13,12 @@
 
 Performance-critical routines are implemented in C++ (via [Rcpp](https://www.rcpp.org/)), and list-based functions support multi-core parallel processing.
 
+## Example
+
+The figure below shows the core workflow on real Bruker MALDI-TOF data: a raw spectrum (gray) is smoothed and baseline-corrected (red), then peaks are detected and filtered (blue).
+
+![MALDIassist workflow example](man/figures/README-example.png)
+
 ---
 
 ## Installation
@@ -28,15 +34,13 @@ remotes::install_github("hiows/MALDIassist")
 
 ## Quick start
 
-The example below mirrors the full pipeline: load → preprocess → detect peaks → filter → visualize.
-
-### 0. Load the library
+The pipeline follows five steps: **load → preprocess → peak picking → peak filtering → visualization**.
 
 ```r
 library(MALDIassist)
 ```
 
-### 1. Load spectra
+### 1. Load
 
 Point `load_maldi_spectra()` at a directory of Bruker flex data files. It returns a named list of raw spectra.
 
@@ -44,7 +48,7 @@ Point `load_maldi_spectra()` at a directory of Bruker flex data files. It return
 raw_spectra <- load_maldi_spectra(spectra_dir = "data/")
 ```
 
-### 2. Preprocessing
+### 2. Preprocess
 
 Apply Savitzky-Golay smoothing and baseline subtraction. List-based functions accept `n_cores` for parallel processing.
 
@@ -59,29 +63,9 @@ preprocessed_spectra <- preprocess_maldi_spectra(
 )
 ```
 
-Compare a raw spectrum (gray) against its preprocessed version (red) over a chosen m/z window:
+### 3. Peak picking
 
-```r
-example_range <- c(12000, 15000)
-i    <- 1
-spec <- raw_spectra[[i]]
-pp   <- preprocessed_spectra[[i]]
-
-plot(
-  subset(spec, mz >= example_range[1] & mz <= example_range[2]),
-  type = "l", col = "gray60", lwd = 1.5,
-  ylim = c(0, max(spec[, 2])),
-  xlab = "m/z", ylab = "Intensity", frame = FALSE
-)
-lines(
-  subset(pp, mz >= example_range[1] & mz <= example_range[2]),
-  col = "red", lwd = 2
-)
-```
-
-### 3. Find and filter peaks
-
-`find_peaks_spectra()` detects peaks (including shoulder peaks) using a Gaussian KDE approach; `filter_peaks_spectra()` removes low-quality peaks by intensity, prominence, and strength cutoffs.
+`find_peaks_spectra()` detects peaks (including shoulder peaks) using a Gaussian KDE approach.
 
 ```r
 peaks_list <- find_peaks_spectra(
@@ -92,29 +76,49 @@ peaks_list <- find_peaks_spectra(
   cutoff_kappa_peak_strength = 0.3,
   n_cores                    = 4
 )
-
-filtered_peaks_list <- filter_peaks_spectra(
-  spectra                 = preprocessed_spectra,
-  peaks_list              = peaks_list,
-  cutoff_peak_intensity   = 100,
-  cutoff_peak_prominence  = 100,
-  cutoff_peak_strength    = 0.5,
-  normalization_type      = "raw"
-)
 ```
 
-Overlay the filtered peaks on the spectrum plot from step 2:
+### 4. Peak filtering
+
+`filter_peaks_spectra()` removes low-quality peaks by intensity, prominence, and strength cutoffs.
 
 ```r
-filtered_peaks <- filtered_peaks_list[[i]]
-segments(
-  filtered_peaks$mz, 0,
-  filtered_peaks$mz, filtered_peaks$intensity,
-  col = "blue", lwd = 1.5
+filtered_peaks_list <- filter_peaks_spectra(
+  spectra                = preprocessed_spectra,
+  peaks_list             = peaks_list,
+  cutoff_peak_intensity  = 100,
+  cutoff_peak_prominence = 100,
+  cutoff_peak_strength   = 0.5,
+  normalization_type     = "raw"
 )
 ```
 
-### 4. Visualization
+### 5. Visualization
+
+Overlay a raw spectrum (gray), its preprocessed version (red), and the filtered peaks (blue) — this reproduces the figure at the top of this README:
+
+```r
+example_range <- c(12000, 15000)
+i    <- 1
+spec <- raw_spectra[[i]]
+pp   <- preprocessed_spectra[[i]]
+fp   <- filtered_peaks_list[[i]]
+
+in_range <- function(df) subset(df, df[, 1] >= example_range[1] & df[, 1] <= example_range[2])
+
+plot(
+  in_range(spec),
+  type = "l", col = "gray70", lwd = 1.5,
+  ylim = c(0, max(in_range(spec)[, 2])),
+  xlab = "m/z", ylab = "Intensity", frame = FALSE
+)
+lines(in_range(pp), col = "red", lwd = 2)
+
+fp_r <- fp[fp$mz >= example_range[1] & fp$mz <= example_range[2], ]
+segments(fp_r$mz, 0, fp_r$mz, fp_r$intensity, col = "blue", lwd = 1.5)
+```
+
+You can also overlay all spectra with `ggplot2`:
 
 ```r
 plot_spectra(spectra = preprocessed_spectra)
@@ -148,3 +152,7 @@ Some functions load optional packages only when used:
 ## Author
 
 **Wonseok Oh** ([ORCID: 0009-0002-0687-8466](https://orcid.org/0009-0002-0687-8466))
+
+## License
+
+MIT © 2026 Wonseok Oh. See [LICENSE.md](LICENSE.md) for details.
