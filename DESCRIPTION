@@ -1,10 +1,15 @@
 Package: MALDIassist
-Title: What the Package Does (One Line, Title Case)
+Title: Mathematical Utilities for MALDI-TOF Mass Spectrometry
 Version: 0.0.0.9000
 Authors@R: 
     person("Wonseok", "Oh", , "125277369+hiows@users.noreply.github.com", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0002-0687-8466"))
-Description: What the package does (one paragraph).
+Description: Tools for MALDI-TOF mass spectrometry workflows in R, covering the
+    path from raw Bruker spectra to a cohort-level peak matrix. Includes loading
+    of Bruker spectra, smoothing and baseline correction, Gaussian
+    kernel-density-based peak detection (including shoulder peaks), peak-quality
+    metrics and filtering, and cohort feature analysis. Performance-critical
+    routines are implemented in C++ via 'Rcpp'.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
