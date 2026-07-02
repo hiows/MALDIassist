@@ -1,0 +1,19 @@
+# RStudio
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# Compiled objects from src/
+*.o
+*.so
+*.dll
+*.dylib
+
+# Build artifacts
+*.tar.gz
+/src-i386/
+/src-x64/
+
+# macOS / editor cruft
+.DS_Store
