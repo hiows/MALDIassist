@@ -153,6 +153,28 @@ Some functions load optional packages only when used:
 
 **Wonseok Oh** ([ORCID: 0009-0002-0687-8466](https://orcid.org/0009-0002-0687-8466))
 
+## How to cite
+
+If you use **MALDIassist** in your research, please cite it. From R you can run:
+
+```r
+citation("MALDIassist")
+```
+
+A BibTeX entry:
+
+```bibtex
+@Manual{maldiassist,
+  title  = {MALDIassist: Mathematical Utilities for MALDI-TOF Mass Spectrometry},
+  author = {Wonseok Oh},
+  year   = {2026},
+  note   = {R package version 0.1.0},
+  url    = {https://github.com/hiows/MALDIassist}
+}
+```
+
+> A DOI will be added here once the release is archived on Zenodo.
+
 ## License
 
 MIT © 2026 Wonseok Oh. See [LICENSE.md](LICENSE.md) for details.
