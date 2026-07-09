@@ -2,70 +2,87 @@
 % Please edit documentation in R/find_frequent_mz.R
 \name{find_frequent_mz}
 \alias{find_frequent_mz}
-\title{Find Frequent m/z Values in a Pooled Peak Set}
+\title{Find Frequent m/z Values from a List of Peak Tables}
 \usage{
-find_frequent_mz(pooled_mz, exclude_mz = NULL, bin_width = 20, min_freq = 30)
+find_frequent_mz(
+  peaks_list,
+  bin_width = 20,
+  exclude_mz = NULL,
+  hws_exclude = bin_width/2
+)
 }
 \arguments{
-\item{pooled_mz}{A numeric vector of pooled peak m/z values collected across
-multiple samples.}
-
-\item{exclude_mz}{A numeric vector of m/z values to remove from \code{pooled_mz}
-before analysis, for example known contaminant or calibrant peaks. If
-\code{NULL}, no values are excluded. The default is \code{NULL}.}
+\item{peaks_list}{A list of peak tables. Each element must be a matrix
+or data frame with at least two columns: m/z in the first column and
+intensity in the second column.}
 
 \item{bin_width}{A positive finite numeric scalar specifying the bin width
-used for the initial frequency count. The default is \code{20}.}
+used for the initial scan. The default is \code{20}.}
 
-\item{min_freq}{A numeric scalar specifying the minimum bin count required
-to retain a candidate m/z region. Values less than zero are treated as
-zero. The default is \code{30}.}
+\item{exclude_mz}{A numeric vector of m/z values to remove from the result,
+for example known contaminant or calibrant peaks. For each value, refined
+m/z values within \verb{[exclude_mz - hws_exclude, exclude_mz + hws_exclude]}
+are removed. If \code{NULL}, no values are excluded. The default is \code{NULL}.}
+
+\item{hws_exclude}{A non-negative finite numeric scalar specifying the
+half-window size, in m/z units, used to exclude values around each
+\code{exclude_mz}. A value of \code{0} removes only exact matches. The default is
+\code{bin_width / 2}.}
 }
 \value{
 A data frame with columns:
 \itemize{
 \item \code{mz}: density-refined frequent m/z value.
-\item \code{count}: number of pooled observations within \verb{[mz - hws, mz + hws]}.
+\item \code{median_intensity}: geometric median intensity (via \code{log10}) of pooled
+observations within \verb{[mz - bin_width, mz + bin_width]}.
+\item \code{count}: number of pooled observations within
+\verb{[mz - bin_width, mz + bin_width]}.
+\item \code{freq_ratio}: \code{count / length(peaks_list)}.
 }
 
-If no frequent m/z values remain, an empty data frame with the same
-columns is returned.
+If no frequent m/z values remain, an empty data frame with the same columns
+is returned.
 }
 \description{
-Identifies frequently observed m/z values across a cohort by binning a pooled
-m/z vector, retaining high-frequency bins, and refining each bin location with
-Gaussian kernel density estimation.
+Identifies frequently observed m/z values across a cohort of samples. Each
+sample is represented by a peak table with m/z in the first column and
+intensity in the second column. The pooled m/z values are scanned with
+overlapping bins, and each bin location is refined to the strongest local
+maximum of a Gaussian kernel density estimate (KDE) using \code{\link[=get_gauss_kde]{get_gauss_kde()}}
+and \code{\link[=find_extrema]{find_extrema()}}.
 }
 \details{
 The function performs the following steps:
 \enumerate{
-\item Remove values listed in \code{exclude_mz} from \code{pooled_mz}.
-\item Bin the pooled m/z values with width \code{bin_width} and retain bins with
-count greater than \code{min_freq}.
-\item For each retained bin, refine the m/z location as the mode of a Gaussian
-kernel density estimate computed on m/z values within
-\verb{[bin_midpoint - bin_width, bin_midpoint + bin_width]}.
-\item Re-count observations within \verb{[refined_mz - hws, refined_mz + hws]},
-where \code{hws = bin_width / 2}.
+\item Pool the m/z and intensity values across all peak tables and drop any
+non-finite observations.
+\item Scan the pooled m/z range with three overlapping sets of bins of width
+\code{bin_width} to reduce edge effects.
+\item For each bin, build a histogram, refine the m/z location as the strongest
+local maximum of a Gaussian KDE, and re-count pooled observations within
+\verb{[refined_mz - bin_width, refined_mz + bin_width]}.
+\item Drop duplicate refined m/z values produced by the overlapping bins.
+\item Remove refined m/z values within
+\verb{[exclude_mz - hws_exclude, exclude_mz + hws_exclude]} of any value listed
+in \code{exclude_mz}.
 }
 
-The returned table is sorted in descending order of \code{count}.
+The returned table is sorted in ascending order of \code{mz}.
 }
 \examples{
 set.seed(1)
-pooled_mz <- c(
-  3000 + rnorm(40, sd = 1),
-  5000 + rnorm(35, sd = 1)
-)
+peaks_list <- lapply(seq_len(20), function(i) {
+  mz <- c(3000 + rnorm(1, sd = 1), 5000 + rnorm(1, sd = 1))
+  data.frame(mz = mz, intensity = runif(2, 100, 1000))
+})
 
 find_frequent_mz(
-  pooled_mz = pooled_mz,
-  exclude_mz = NULL,
+  peaks_list = peaks_list,
   bin_width = 20,
-  min_freq = 30
+  exclude_mz = NULL
 )
 
 }
 \seealso{
-\code{\link[=find_peaks]{find_peaks()}}
+\code{\link[=find_peaks]{find_peaks()}}, \code{\link[=get_gauss_kde]{get_gauss_kde()}}, \code{\link[=find_extrema]{find_extrema()}}
 }

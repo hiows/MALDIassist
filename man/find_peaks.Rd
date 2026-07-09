@@ -12,7 +12,7 @@ find_peaks(
   merge_tol = NULL,
   tol = 1e-05,
   max_iter = 100L,
-  weight_type = c("none", "raw", "sqrt", "log10"),
+  weight_type = c("raw", "sqrt", "log10", "none"),
   hws_grid_kappa_smooth = 3:20,
   cutoff_kappa_peak_strength = 0.5,
   peak_retention_fraction = 0.25
@@ -25,7 +25,7 @@ find_peaks_spectra(
   merge_tol = NULL,
   tol = 1e-05,
   max_iter = 100L,
-  weight_type = c("none", "raw", "sqrt", "log10"),
+  weight_type = c("raw", "sqrt", "log10", "none"),
   hws_grid_kappa_smooth = 3:20,
   cutoff_kappa_peak_strength = 0.5,
   peak_retention_fraction = 0.25,

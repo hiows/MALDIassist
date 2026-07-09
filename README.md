@@ -9,6 +9,7 @@
 - Smoothing and baseline correction
 - Gaussian KDE-based peak detection (including shoulder peaks)
 - Peak-quality metrics and filtering (intensity / prominence / strength)
+- Spectrum alignment to internal standards (linear / lowess)
 - Cohort feature analysis (frequent m/z discovery, matched peak matrix)
 
 Performance-critical routines are implemented in C++ (via [Rcpp](https://www.rcpp.org/)), and list-based functions support multi-core parallel processing.
@@ -126,6 +127,53 @@ plot_spectra(spectra = preprocessed_spectra)
 
 ---
 
+## Cohort analysis
+
+After per-spectrum peak filtering, build a cohort-level feature matrix in three steps: **frequent m/z discovery → alignment → matrix assembly**.
+
+### 1. Find frequent m/z values
+
+`find_frequent_mz()` scans pooled peak m/z values across samples and refines each bin location with Gaussian KDE.
+
+```r
+freq_mz <- find_frequent_mz(
+  peaks_list = filtered_peaks_list,
+  bin_width  = 20,
+  exclude_mz = c(28101, 28108)  # calibrant / contaminant peaks
+)
+```
+
+### 2. Align spectra
+
+`align_spectra()` corrects m/z drift using internal standards selected from frequent, high-intensity peaks. Choose `"linear"` (two-point) or `"lowess"` (multi-point) alignment.
+
+```r
+aligned <- align_spectra(
+  spectra        = preprocessed_spectra,
+  peaks_list     = filtered_peaks_list,
+  alignment_mode = "linear"  # or "lowess"
+)
+
+aligned_spectra <- aligned$spectra
+aligned_peaks   <- aligned$peaks_list
+```
+
+### 3. Build a matched peak matrix
+
+`build_matched_peaks_matrix()` matches each sample's peaks to reference m/z values and returns a sample-by-marker intensity matrix.
+
+```r
+peak_matrix <- build_matched_peaks_matrix(
+  peaks_list    = aligned_peaks,
+  reference_mz  = freq_mz$mz,
+  hws_match     = 10
+)
+
+peak_matrix$matrix
+```
+
+---
+
 ## Main functions
 
 | Function | Purpose |
@@ -135,7 +183,9 @@ plot_spectra(spectra = preprocessed_spectra)
 | `find_peaks()` / `find_peaks_spectra()` | Detect ordinary and shoulder peaks (single / list) |
 | `find_peaks_fast()` / `find_peaks_spectra_fast()` | Fast local peak detection (single / list) |
 | `filter_peaks()` / `filter_peaks_spectra()` | Filter peaks by intensity, prominence, and strength |
+| `build_kde_spectrum()` / `build_kde_spectra()` | Build Gaussian KDE spectra (single / list) |
 | `find_frequent_mz()` | Find frequent m/z values across a cohort |
+| `align_spectra()` | Align spectra to internal standards (linear / lowess) |
 | `build_matched_peaks_matrix()` | Assemble a cohort peak intensity matrix |
 | `plot_spectrum()` / `plot_spectra()` | Visualize spectra (requires `ggplot2`) |
 | `heatmap_spectrum_matrix()` | Heatmap of a spectrum/peak matrix (requires `pheatmap`) |
@@ -168,12 +218,39 @@ A BibTeX entry:
   title  = {MALDIassist: Mathematical Utilities for MALDI-TOF Mass Spectrometry},
   author = {Wonseok Oh},
   year   = {2026},
-  note   = {R package version 0.1.0},
+  note   = {R package version 0.1.1},
   url    = {https://github.com/hiows/MALDIassist}
 }
 ```
 
 > A DOI will be added here once the release is archived on Zenodo.
+
+### Preprint
+
+The algorithm behind **MALDIassist** — Gaussian kernel-regression peak detection
+with curvature-based shoulder-peak recovery — is described in a preprint
+(bioRxiv, 2026). The preprint source, simulation study, and figure code live in
+the [`paper/`](https://github.com/hiows/MALDIassist) directory of the project.
+
+```bibtex
+@article{maldiassist_preprint,
+  title   = {MALDIassist: curvature-aware peak detection for MALDI-TOF mass spectra, including shoulder peaks},
+  author  = {Wonseok Oh},
+  year    = {2026},
+  journal = {bioRxiv},
+  note    = {Preprint; DOI added on posting}
+}
+```
+
+## Changelog
+
+### v0.1.1
+
+- Add `align_spectra()` for linear / lowess m/z alignment using internal standards
+- Add `build_kde_spectrum()` and `build_kde_spectra()` for Gaussian KDE spectrum construction
+- Refactor `find_frequent_mz()` to accept `peaks_list` input; add `median_intensity` and `freq_ratio` columns
+- Change default `weight_type` in `find_peaks()` to `"raw"`
+- Update README, CITATION, and preprint references
 
 ## License
 

@@ -12,7 +12,9 @@
 #'   in one spectrum or a list of spectra
 #' * [filter_peaks()] / [filter_peaks_spectra()]: filter detected peaks by
 #'   intensity, prominence, and strength
+#' * [build_kde_spectrum()] / [build_kde_spectra()]: build Gaussian KDE spectra
 #' * [find_frequent_mz()]: find frequent m/z values across a cohort
+#' * [align_spectra()]: align spectra to internal standards (linear / lowess)
 #' * [build_matched_peaks_matrix()]: assemble a cohort peak intensity matrix
 #'
 #' @section Suggested packages:

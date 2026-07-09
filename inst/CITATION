@@ -1,11 +1,25 @@
 citHeader("To cite MALDIassist in publications, please use:")
 
+## Software (archive on Zenodo).
+## Replace the Zenodo DOI once the tagged release is archived.
 bibentry(
   bibtype  = "Manual",
   title    = "MALDIassist: Mathematical Utilities for MALDI-TOF Mass Spectrometry",
   author   = person("Wonseok", "Oh", comment = c(ORCID = "0009-0002-0687-8466")),
   year     = "2026",
-  note     = "R package version 0.1.0",
+  note     = "R package version 0.1.1",
   url      = "https://github.com/hiows/MALDIassist"
   # doi    = "10.5281/zenodo.XXXXXXX"  # Add the Zenodo DOI once the release is archived.
+)
+
+## Preprint describing the algorithm (bioRxiv).
+## Replace the bioRxiv DOI once the preprint is posted.
+bibentry(
+  bibtype   = "Article",
+  title     = "MALDIassist: curvature-aware peak detection for MALDI-TOF mass spectra, including shoulder peaks",
+  author    = person("Wonseok", "Oh", comment = c(ORCID = "0009-0002-0687-8466")),
+  year      = "2026",
+  journal   = "bioRxiv",
+  note      = "Preprint"
+  # doi     = "10.1101/XXXXXX"  # Add the bioRxiv DOI once the preprint is posted.
 )

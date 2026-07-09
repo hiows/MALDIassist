@@ -1,6 +1,6 @@
 Package: MALDIassist
 Title: Mathematical Utilities for MALDI-TOF Mass Spectrometry
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: 
     person("Wonseok", "Oh", , "125277369+hiows@users.noreply.github.com", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0002-0687-8466"))
@@ -21,4 +21,4 @@ Imports:
 LinkingTo:
     Rcpp
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
+Config/roxygen2/version: 8.0.0

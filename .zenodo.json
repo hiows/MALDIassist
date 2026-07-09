@@ -1,0 +1,24 @@
+{
+  "title": "MALDIassist: Mathematical Utilities for MALDI-TOF Mass Spectrometry",
+  "description": "An R package for MALDI-TOF mass spectrometry workflows: loading Bruker spectra, smoothing and baseline correction, Gaussian kernel-regression peak detection including shoulder peaks via weighted curvature, peak-quality metrics and filtering, and cohort-level feature construction. Performance-critical routines are implemented in C++ via Rcpp.",
+  "upload_type": "software",
+  "license": "MIT",
+  "access_right": "open",
+  "keywords": [
+    "MALDI-TOF",
+    "mass spectrometry",
+    "peak detection",
+    "shoulder peaks",
+    "kernel regression",
+    "curvature",
+    "bioinformatics",
+    "R"
+  ],
+  "creators": [
+    {
+      "name": "Oh, Wonseok",
+      "orcid": "0009-0002-0687-8466",
+      "affiliation": "AFFILIATION PLACEHOLDER"
+    }
+  ]
+}

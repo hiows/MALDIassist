@@ -20,7 +20,9 @@ in one spectrum or a list of spectra
 in one spectrum or a list of spectra
 \item \code{\link[=filter_peaks]{filter_peaks()}} / \code{\link[=filter_peaks_spectra]{filter_peaks_spectra()}}: filter detected peaks by
 intensity, prominence, and strength
+\item \code{\link[=build_kde_spectrum]{build_kde_spectrum()}} / \code{\link[=build_kde_spectra]{build_kde_spectra()}}: build Gaussian KDE spectra
 \item \code{\link[=find_frequent_mz]{find_frequent_mz()}}: find frequent m/z values across a cohort
+\item \code{\link[=align_spectra]{align_spectra()}}: align spectra to internal standards (linear / lowess)
 \item \code{\link[=build_matched_peaks_matrix]{build_matched_peaks_matrix()}}: assemble a cohort peak intensity matrix
 }
 }
@@ -34,7 +36,20 @@ Some functions require optional packages that are only loaded when used:
 }
 }
 
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/hiows/MALDIassist}
+  \item Report bugs at \url{https://github.com/hiows/MALDIassist/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Wonseok Oh \email{125277369+hiows@users.noreply.github.com} (\href{https://orcid.org/0009-0002-0687-8466}{ORCID})
+
+Authors:
+\itemize{
+  \item Wonseok Oh \email{125277369+hiows@users.noreply.github.com} (\href{https://orcid.org/0009-0002-0687-8466}{ORCID})
+}
 
 }
