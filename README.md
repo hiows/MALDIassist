@@ -139,7 +139,7 @@ After per-spectrum peak filtering, build a cohort-level feature matrix in three 
 freq_mz <- find_frequent_mz(
   peaks_list = filtered_peaks_list,
   bin_width  = 20,
-  exclude_mz = c(28101, 28108)  # calibrant / contaminant peaks
+  exclude_mz = NULL
 )
 ```
 
@@ -225,23 +225,6 @@ A BibTeX entry:
 
 > A DOI will be added here once the release is archived on Zenodo.
 
-### Preprint
-
-The algorithm behind **MALDIassist** — Gaussian kernel-regression peak detection
-with curvature-based shoulder-peak recovery — is described in a preprint
-(bioRxiv, 2026). The preprint source, simulation study, and figure code live in
-the [`paper/`](https://github.com/hiows/MALDIassist) directory of the project.
-
-```bibtex
-@article{maldiassist_preprint,
-  title   = {MALDIassist: curvature-aware peak detection for MALDI-TOF mass spectra, including shoulder peaks},
-  author  = {Wonseok Oh},
-  year    = {2026},
-  journal = {bioRxiv},
-  note    = {Preprint; DOI added on posting}
-}
-```
-
 ## Changelog
 
 ### v0.1.1
@@ -250,7 +233,7 @@ the [`paper/`](https://github.com/hiows/MALDIassist) directory of the project.
 - Add `build_kde_spectrum()` and `build_kde_spectra()` for Gaussian KDE spectrum construction
 - Refactor `find_frequent_mz()` to accept `peaks_list` input; add `median_intensity` and `freq_ratio` columns
 - Change default `weight_type` in `find_peaks()` to `"raw"`
-- Update README, CITATION, and preprint references
+- Update README and CITATION
 
 ## License
 
