@@ -10,7 +10,7 @@
 - Gaussian KDE-based peak detection (including shoulder peaks)
 - Peak-quality metrics and filtering (intensity / prominence / strength)
 - Spectrum alignment to internal standards (linear / lowess)
-- Cohort feature analysis (frequent m/z discovery, matched peak matrix)
+- Cohort feature analysis (frequent m/z discovery, matched peak matrix, two-group significance testing)
 
 Performance-critical routines are implemented in C++ (via [Rcpp](https://www.rcpp.org/)), and list-based functions support multi-core parallel processing.
 
@@ -129,23 +129,11 @@ plot_spectra(spectra = preprocessed_spectra)
 
 ## Cohort analysis
 
-After per-spectrum peak filtering, build a cohort-level feature matrix in three steps: **frequent m/z discovery → alignment → matrix assembly**.
+Once each sample has a filtered peak table, build a cohort-level feature matrix in four steps: **align → frequent m/z discovery → matrix assembly → significance testing**.
 
-### 1. Find frequent m/z values
+### 1. Align spectra
 
-`find_frequent_mz()` scans pooled peak m/z values across samples and refines each bin location with Gaussian KDE.
-
-```r
-freq_mz <- find_frequent_mz(
-  peaks_list = filtered_peaks_list,
-  bin_width  = 20,
-  exclude_mz = NULL
-)
-```
-
-### 2. Align spectra
-
-`align_spectra()` corrects m/z drift using internal standards selected from frequent, high-intensity peaks. Choose `"linear"` (two-point) or `"lowess"` (multi-point) alignment.
+`align_spectra()` corrects m/z drift using internal standards selected from frequent, high-intensity peaks. Choose `"linear"` (two-point) or `"lowess"` (multi-point) alignment. It returns one aligned `spectrum` / `peaks` pair per sample (in `alignment_results`) plus the reference `standard_mz` values used as anchors.
 
 ```r
 aligned <- align_spectra(
@@ -154,23 +142,71 @@ aligned <- align_spectra(
   alignment_mode = "linear"  # or "lowess"
 )
 
-aligned_spectra <- aligned$spectra
-aligned_peaks   <- aligned$peaks_list
+aligned_spectra <- lapply(aligned$alignment_results, `[[`, "spectrum")
+aligned_peaks   <- lapply(aligned$alignment_results, `[[`, "peaks")
+exclude_mz      <- aligned$standard_mz   # alignment anchors, excluded below
+```
+
+### 2. Find frequent m/z values
+
+`find_frequent_mz()` scans pooled peak m/z values across the aligned samples and refines each bin location with Gaussian KDE. Pass the alignment anchors to `exclude_mz` so the internal standards are dropped from the feature set.
+
+```r
+freq_mz <- find_frequent_mz(
+  peaks_list = aligned_peaks,
+  bin_width  = 20,
+  exclude_mz = exclude_mz
+)
 ```
 
 ### 3. Build a matched peak matrix
 
-`build_matched_peaks_matrix()` matches each sample's peaks to reference m/z values and returns a sample-by-marker intensity matrix.
+`build_matched_matrix()` matches each sample's peaks to the frequent m/z references and returns a detection matrix (`detected_matrix`) and a signed m/z-difference matrix (`delta_mz_matrix`), both sample-by-marker.
 
 ```r
-peak_matrix <- build_matched_peaks_matrix(
+matched <- build_matched_matrix(
   peaks_list    = aligned_peaks,
   reference_mz  = freq_mz$mz,
   hws_match     = 10
 )
 
-peak_matrix$matrix
+mat <- matched$detected_matrix
 ```
+
+Visualize the matrix with `heatmap_matched_matrix()`, optionally annotated by a per-sample grouping:
+
+```r
+heatmap_matched_matrix(
+  matched_matrix = mat,
+  groups         = sample_groups,   # one entry per sample (row)
+  hide_rownames  = TRUE,
+  hide_colnames  = TRUE
+)
+```
+
+### 4. Test for significant m/z features
+
+`estimate_significance()` runs a per-feature two-group comparison (t-test or Wilcoxon) on a sample-by-marker matrix and returns raw and adjusted p-values. Subset the matrix to the significant markers to highlight the discriminating features.
+
+```r
+sig <- estimate_significance(
+  matched_matrix = mat,
+  group          = sample_groups,   # two-level grouping, one entry per sample
+  stat_method    = "t.test",        # or "wilcox"
+  adj_method     = "BH"             # "none", "BH", or "bonferroni"
+)
+
+heatmap_matched_matrix(
+  matched_matrix = mat[, which(sig$adj_pvalue < 0.01)],
+  groups         = sample_groups,
+  hide_rownames  = TRUE,
+  hide_colnames  = TRUE
+)
+```
+
+Applied to a real two-species CPE cohort, the significant markers cleanly separate the samples by species:
+
+![Cohort matched-peak heatmap](man/figures/README-cohort-heatmap.png)
 
 ---
 
@@ -186,16 +222,17 @@ peak_matrix$matrix
 | `build_kde_spectrum()` / `build_kde_spectra()` | Build Gaussian KDE spectra (single / list) |
 | `find_frequent_mz()` | Find frequent m/z values across a cohort |
 | `align_spectra()` | Align spectra to internal standards (linear / lowess) |
-| `build_matched_peaks_matrix()` | Assemble a cohort peak intensity matrix |
+| `build_matched_matrix()` | Assemble a cohort peak intensity matrix |
+| `estimate_significance()` | Two-group significance testing per m/z feature |
 | `plot_spectrum()` / `plot_spectra()` | Visualize spectra (requires `ggplot2`) |
-| `heatmap_spectrum_matrix()` | Heatmap of a spectrum/peak matrix (requires `pheatmap`) |
+| `heatmap_matched_matrix()` | Heatmap of a matched-peak matrix (requires `pheatmap`) |
 
 ### Suggested packages
 
 Some functions load optional packages only when used:
 
 - `plot_spectrum()`, `plot_spectra()` → `ggplot2`
-- `heatmap_spectrum_matrix()` → `pheatmap`
+- `heatmap_matched_matrix()` → `pheatmap`
 
 ---
 
@@ -218,7 +255,7 @@ A BibTeX entry:
   title  = {MALDIassist: Mathematical Utilities for MALDI-TOF Mass Spectrometry},
   author = {Wonseok Oh},
   year   = {2026},
-  note   = {R package version 0.1.1},
+  note   = {R package version 0.1.2},
   url    = {https://github.com/hiows/MALDIassist}
 }
 ```
@@ -226,6 +263,13 @@ A BibTeX entry:
 > A DOI will be added here once the release is archived on Zenodo.
 
 ## Changelog
+
+### v0.1.2
+
+- Add `estimate_significance()` for per-feature two-group significance testing (t-test / Wilcoxon) with p-value adjustment
+- Rename `build_matched_peaks_matrix()` to `build_matched_matrix()` (returns `detected_matrix` / `delta_mz_matrix`)
+- Rename `heatmap_spectrum_matrix()` to `heatmap_matched_matrix()` and add `hide_rownames` / `hide_colnames` options
+- Reorder the cohort workflow to align spectra first and exclude alignment standards from frequent m/z discovery
 
 ### v0.1.1
 

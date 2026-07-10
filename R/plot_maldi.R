@@ -176,17 +176,18 @@ plot_spectra <- function(spectra,
   .with_axis_limits(p, xlim = xlim, ylim = ylim)
 }
 
-#' @name heatmap_spectrum_matrix
-#' @title Heatmap of a Sample-by-Feature Intensity Matrix
+#' @name heatmap_matched_matrix
+#' @title Heatmap of a Sample-by-Marker Matched-Peak Matrix
 #'
 #' @description
-#' Draws a clustered heatmap of a sample-by-feature intensity matrix, such as
-#' the output of [build_matched_peaks_matrix()], with optional group annotation
-#' and a zero-centered diverging palette. Requires the suggested package
-#' `pheatmap`.
+#' Draws a clustered heatmap of a sample-by-marker matched-peak matrix, such as
+#' the `detected_matrix` or `delta_mz_matrix` returned by
+#' [build_matched_matrix()], with optional group annotation and a zero-centered
+#' diverging palette. Requires the suggested package `pheatmap`.
 #'
-#' @param matrix_obj A numeric matrix or output from
-#'   [build_matched_peaks_matrix()].
+#' @param matched_matrix A numeric matrix with samples as rows and markers as
+#'   columns, such as the `detected_matrix` or `delta_mz_matrix` element of
+#'   [build_matched_matrix()].
 #' @param row_cluster Logical indicating whether to cluster rows. The default
 #'   is `TRUE`.
 #' @param col_cluster Logical indicating whether to cluster columns. The
@@ -196,19 +197,23 @@ plot_spectra <- function(spectra,
 #' @param title Optional plot title.
 #' @param center_at_zero Logical. When `TRUE` (default), uses a diverging
 #'   blue-white-red palette with limits symmetric around `0`.
+#' @param hide_rownames Logical. When `TRUE`, sample (row) labels are hidden.
+#'   The default is `FALSE`.
+#' @param hide_colnames Logical. When `TRUE`, marker (column) labels are hidden.
+#'   The default is `FALSE`.
 #'
 #' @details
 #' Missing values (`NA`) are shown as grey cells via `pheatmap`'s `na_col`.
 #' When `center_at_zero = TRUE`, finite values are mapped with equal positive
 #' and negative limits so that `0` sits at the neutral center color. This is
-#' especially useful for `fill = "diff_mz"` matrices.
+#' especially useful for `delta_mz_matrix` matrices.
 #' When the matrix contains many `NA` values, consider setting
 #' `row_cluster = FALSE` or `col_cluster = FALSE` because clustering may be
 #' unstable with sparse data.
 #'
 #' @return A `pheatmap` object.
 #'
-#' @seealso [build_matched_peaks_matrix()]
+#' @seealso [build_matched_matrix()]
 #'
 #' @examples
 #' if (requireNamespace("pheatmap", quietly = TRUE)) {
@@ -217,40 +222,37 @@ plot_spectra <- function(spectra,
 #'   rownames(m) <- paste0("sample_", 1:5)
 #'   colnames(m) <- paste0("mz_", 1:8)
 #'
-#'   heatmap_spectrum_matrix(m, title = "Example heatmap")
+#'   heatmap_matched_matrix(m, title = "Example heatmap")
 #' }
 #'
 #' @export
-heatmap_spectrum_matrix <- function(matrix_obj,
-                                    row_cluster = TRUE,
-                                    col_cluster = TRUE,
-                                    groups = NULL,
-                                    title = "Spectrum heatmap",
-                                    center_at_zero = TRUE) {
+heatmap_matched_matrix <- function(matched_matrix,
+                                   row_cluster = TRUE,
+                                   col_cluster = TRUE,
+                                   groups = NULL,
+                                   title = "Matched peaks heatmap",
+                                   center_at_zero = TRUE,
+                                   hide_rownames = FALSE,
+                                   hide_colnames = FALSE) {
   if (!requireNamespace("pheatmap", quietly = TRUE)) {
     stop(
-      "Package 'pheatmap' is required for heatmap_spectrum_matrix(). Install it with install.packages('pheatmap').",
+      "Package 'pheatmap' is required for heatmap_matched_matrix(). Install it with install.packages('pheatmap').",
       call. = FALSE
     )
   }
 
-  if (is.list(matrix_obj) && !is.null(matrix_obj$matrix)) {
-    matrix_obj <- matrix_obj$matrix
-  }
-
-  if (!is.matrix(matrix_obj) && !is.data.frame(matrix_obj)) {
+  if (!is.matrix(matched_matrix) || !is.numeric(matched_matrix)) {
     stop(
-      "'matrix_obj' must be a numeric matrix, data frame, or compatible list.",
+      "'matched_matrix' must be a numeric matrix.",
       call. = FALSE
     )
   }
 
-  mat <- as.matrix(matrix_obj)
-  mode(mat) <- "numeric"
+  mat <- matched_matrix
 
   if (nrow(mat) < 1L || ncol(mat) < 1L) {
     stop(
-      "'matrix_obj' must have at least one row and one column.",
+      "'matched_matrix' must have at least one row and one column.",
       call. = FALSE
     )
   }
@@ -260,13 +262,13 @@ heatmap_spectrum_matrix <- function(matrix_obj,
   if (!has_na) {
     if (any(!is.finite(mat))) {
       stop(
-        "'matrix_obj' must contain only finite values.",
+        "'matched_matrix' must contain only finite values.",
         call. = FALSE
       )
     }
   } else if (any(!is.na(mat) & !is.finite(mat))) {
     stop(
-      "'matrix_obj' must contain only finite or NA values.",
+      "'matched_matrix' must contain only finite or NA values.",
       call. = FALSE
     )
   }
@@ -302,6 +304,24 @@ heatmap_spectrum_matrix <- function(matrix_obj,
     )
   }
 
+  if (!is.logical(hide_rownames) ||
+      length(hide_rownames) != 1L ||
+      is.na(hide_rownames)) {
+    stop(
+      "'hide_rownames' must be TRUE or FALSE.",
+      call. = FALSE
+    )
+  }
+
+  if (!is.logical(hide_colnames) ||
+      length(hide_colnames) != 1L ||
+      is.na(hide_colnames)) {
+    stop(
+      "'hide_colnames' must be TRUE or FALSE.",
+      call. = FALSE
+    )
+  }
+
   if (nrow(mat) < 2L) {
     row_cluster <- FALSE
   }
@@ -315,7 +335,7 @@ heatmap_spectrum_matrix <- function(matrix_obj,
   if (!is.null(groups)) {
     if (length(groups) != nrow(mat)) {
       stop(
-        "'groups' must have the same length as the number of rows in 'matrix_obj'.",
+        "'groups' must have the same length as the number of rows in 'matched_matrix'.",
         call. = FALSE
       )
     }
@@ -323,7 +343,7 @@ heatmap_spectrum_matrix <- function(matrix_obj,
     group_values <- if (!is.null(names(groups))) {
       if (!all(rownames(mat) %in% names(groups))) {
         stop(
-          "When 'groups' is named, its names must include all row names in 'matrix_obj'.",
+          "When 'groups' is named, its names must include all row names in 'matched_matrix'.",
           call. = FALSE
         )
       }
@@ -350,7 +370,10 @@ heatmap_spectrum_matrix <- function(matrix_obj,
     cluster_cols = col_cluster,
     annotation_row = annotation_row,
     annotation_colors = annotation_colors,
+    annotation_names_row = FALSE,
     main = title,
+    show_rownames = !hide_rownames,
+    show_colnames = !hide_colnames,
     silent = FALSE
   )
 

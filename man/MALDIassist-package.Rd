@@ -23,7 +23,7 @@ intensity, prominence, and strength
 \item \code{\link[=build_kde_spectrum]{build_kde_spectrum()}} / \code{\link[=build_kde_spectra]{build_kde_spectra()}}: build Gaussian KDE spectra
 \item \code{\link[=find_frequent_mz]{find_frequent_mz()}}: find frequent m/z values across a cohort
 \item \code{\link[=align_spectra]{align_spectra()}}: align spectra to internal standards (linear / lowess)
-\item \code{\link[=build_matched_peaks_matrix]{build_matched_peaks_matrix()}}: assemble a cohort peak intensity matrix
+\item \code{\link[=build_matched_matrix]{build_matched_matrix()}}: assemble a cohort peak intensity matrix
 }
 }
 

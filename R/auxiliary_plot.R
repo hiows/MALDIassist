@@ -91,7 +91,7 @@
   if (!requireNamespace("colorspace", quietly = TRUE)) {
     stop(
       "Package 'colorspace' is required for group annotation colors in ",
-      "heatmap_spectrum_matrix(). Install it with install.packages('colorspace').",
+      "heatmap_matched_matrix(). Install it with install.packages('colorspace').",
       call. = FALSE
     )
   }

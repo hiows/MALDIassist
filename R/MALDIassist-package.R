@@ -15,12 +15,12 @@
 #' * [build_kde_spectrum()] / [build_kde_spectra()]: build Gaussian KDE spectra
 #' * [find_frequent_mz()]: find frequent m/z values across a cohort
 #' * [align_spectra()]: align spectra to internal standards (linear / lowess)
-#' * [build_matched_peaks_matrix()]: assemble a cohort peak intensity matrix
+#' * [build_matched_matrix()]: assemble a cohort peak intensity matrix
 #'
 #' @section Suggested packages:
 #' Some functions require optional packages that are only loaded when used:
 #' * [plot_spectrum()], [plot_spectra()]: `ggplot2`
-#' * [heatmap_spectrum_matrix()]: `pheatmap`
+#' * [heatmap_matched_matrix()]: `pheatmap`
 #'
 #' @useDynLib MALDIassist, .registration = TRUE
 #' @importFrom Rcpp evalCpp

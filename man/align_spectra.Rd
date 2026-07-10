@@ -147,5 +147,5 @@ aligned_lowess <- align_spectra(
 
 }
 \seealso{
-\code{\link[=find_frequent_mz]{find_frequent_mz()}}, \code{\link[=match_peaks]{match_peaks()}}, \code{\link[=build_matched_peaks_matrix]{build_matched_peaks_matrix()}}
+\code{\link[=find_frequent_mz]{find_frequent_mz()}}, \code{\link[=match_peaks]{match_peaks()}}, \code{\link[=build_matched_matrix]{build_matched_matrix()}}
 }

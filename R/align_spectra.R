@@ -102,7 +102,7 @@
 #'     \item{alignment_mode}{The alignment strategy used.}
 #'   }
 #'
-#' @seealso [find_frequent_mz()], [match_peaks()], [build_matched_peaks_matrix()]
+#' @seealso [find_frequent_mz()], [match_peaks()], [build_matched_matrix()]
 #'
 #' @examples
 #' \dontrun{

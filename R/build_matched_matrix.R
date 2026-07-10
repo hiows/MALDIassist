@@ -1,4 +1,4 @@
-#' @name build_matched_peaks_matrix
+#' @name build_matched_matrix
 #' @title Build a Sample-by-Marker Peak Intensity Matrix
 #'
 #' @description
@@ -13,29 +13,25 @@
 #'   `10`.
 #' @param peak_selection_mode Peak selection rule passed to [match_peaks()].
 #'   The default is `"nearest_mz"`.
-#' @param fill Character string specifying matrix values. One of `"intensity"`,
-#'   `"log_intensity"` (`log10(pmax(intensity, 1))`), `"detected"`, or
-#'   `"diff_mz"`. For `"intensity"`, `"log_intensity"`, and `"detected"`,
-#'   unmatched values are filled with `0`. For `"diff_mz"`, unmatched values
-#'   remain `NA` so that an exact match (`0`) is not confused with a missing
-#'   peak.
 #'
 #' @return A list with elements:
 #'   \describe{
-#'     \item{matrix}{Numeric matrix with samples as rows and markers as
-#'       columns. Column names are `reference_names` when supplied, otherwise
-#'       character forms of `reference_mz`. Columns that are entirely `NA`
-#'       across samples (no matched peak in any sample) are removed. Remaining
-#'       unmatched cells are `NA` when `fill = "diff_mz"`, otherwise `0`.}
-#'     \item{matched_matrix}{Logical matrix with the same dimensions as
-#'       `matrix`. `TRUE` indicates a peak was matched within the window.}
-#'     \item{reference_mz}{Reference m/z values retained in `matrix`.}
-#'     \item{reference_names}{Marker names retained in `matrix`, if supplied.}
+#'     \item{detected_matrix}{Integer matrix with samples as rows and markers
+#'       as columns, holding `1` where a peak was matched and `0` otherwise.
+#'       Column names are `reference_names` when supplied, otherwise
+#'       `paste0("mz_", round(reference_mz, 3))`. Columns with no matched peak
+#'       in any sample are removed.}
+#'     \item{delta_mz_matrix}{Numeric matrix with the same dimensions as
+#'       `detected_matrix`, holding the signed m/z difference
+#'       (`detected_mz - reference_mz`). Unmatched cells remain `NA`.}
+#'     \item{reference_mz}{Reference m/z values retained in the matrices.}
+#'     \item{reference_names}{Marker names retained in the matrices, if
+#'       supplied.}
 #'     \item{sample_names}{Sample names from `peaks_list`.}
 #'     \item{matches}{Named list of per-sample [match_peaks()] results.}
 #'   }
 #'
-#' @seealso [match_peaks()], [find_frequent_mz()], [heatmap_spectrum_matrix()]
+#' @seealso [match_peaks()], [find_frequent_mz()], [heatmap_matched_matrix()]
 #'
 #' @examples
 #' peaks_list <- list(
@@ -43,22 +39,21 @@
 #'   sample_2 = data.frame(mz = c(1002, 2001), intensity = c(12, 25))
 #' )
 #'
-#' result <- build_matched_peaks_matrix(
+#' result <- build_matched_matrix(
 #'   peaks_list = peaks_list,
 #'   reference_mz = c(1000, 1500, 2000),
 #'   reference_names = c("marker_a", "marker_b", "marker_c"),
 #'   hws_match = 10
 #' )
 #'
-#' result$matrix
+#' result$detected_matrix
 #'
 #' @export
-build_matched_peaks_matrix <- function(peaks_list,
-                                       reference_mz,
-                                       reference_names = NULL,
-                                       hws_match = 10,
-                                       peak_selection_mode = c("nearest_mz", "maximum_intensity"),
-                                       fill = c("intensity", "log_intensity", "detected", "diff_mz")) {
+build_matched_matrix <- function(peaks_list,
+                                 reference_mz,
+                                 reference_names = NULL,
+                                 hws_match = 10,
+                                 peak_selection_mode = c("nearest_mz", "maximum_intensity")) {
   if (!is.list(peaks_list) || length(peaks_list) < 1L) {
     stop(
       "'peaks_list' must be a non-empty list.",
@@ -80,7 +75,6 @@ build_matched_peaks_matrix <- function(peaks_list,
     )
   }
 
-  fill <- match.arg(fill)
   peak_selection_mode <- match.arg(peak_selection_mode)
 
   if (!is.null(reference_names)) {
@@ -100,7 +94,7 @@ build_matched_peaks_matrix <- function(peaks_list,
   }
 
   marker_colnames <- if (is.null(reference_names)) {
-    as.character(reference_mz)
+    paste0("mz_", round(reference_mz, 3))
   } else {
     reference_names
   }
@@ -122,14 +116,14 @@ build_matched_peaks_matrix <- function(peaks_list,
     peak_selection_mode = peak_selection_mode
   )
 
-  mat <- matrix(
-    NA_real_,
+  detected_mat <- matrix(
+    0L,
     nrow = n_samples,
     ncol = n_markers,
     dimnames = list(sample_names, marker_colnames)
   )
-  matched_mat <- matrix(
-    FALSE,
+  delta_mat <- matrix(
+    NA_real_,
     nrow = n_samples,
     ncol = n_markers,
     dimnames = list(sample_names, marker_colnames)
@@ -137,13 +131,6 @@ build_matched_peaks_matrix <- function(peaks_list,
 
   for (i in seq_len(n_samples)) {
     m <- matches[[i]]
-    vals <- switch(
-      fill,
-      intensity = m$detected_intensity,
-      log_intensity = log10(pmax(m$detected_intensity, 1)),
-      detected = as.numeric(m$is_matched),
-      diff_mz = m$delta_mz
-    )
     idx <- match(reference_mz, m$reference_mz)
     if (anyNA(idx)) {
       stop(
@@ -151,14 +138,14 @@ build_matched_peaks_matrix <- function(peaks_list,
         call. = FALSE
       )
     }
-    mat[i, ] <- vals[idx]
-    matched_mat[i, ] <- m$is_matched[idx]
+    detected_mat[i, ] <- as.integer(!is.na(m$detected_mz[idx]))
+    delta_mat[i, ] <- m$delta_mz[idx]
   }
 
-  keep <- colSums(!is.na(mat)) > 0L
+  keep <- colSums(detected_mat) > 0L
   if (any(!keep)) {
-    mat <- mat[, keep, drop = FALSE]
-    matched_mat <- matched_mat[, keep, drop = FALSE]
+    detected_mat <- detected_mat[, keep, drop = FALSE]
+    delta_mat <- delta_mat[, keep, drop = FALSE]
     reference_mz <- reference_mz[keep]
     if (!is.null(reference_names)) {
       reference_names <- reference_names[keep]
@@ -171,13 +158,9 @@ build_matched_peaks_matrix <- function(peaks_list,
     )
   }
 
-  if (!identical(fill, "diff_mz")) {
-    mat[is.na(mat)] <- 0
-  }
-
   list(
-    matrix = mat,
-    matched_matrix = matched_mat,
+    detected_matrix = detected_mat,
+    delta_mz_matrix = delta_mat,
     reference_mz = reference_mz,
     reference_names = reference_names,
     sample_names = sample_names,
