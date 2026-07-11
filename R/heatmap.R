@@ -1,181 +1,3 @@
-#' @name plot_spectrum
-#' @title Plot a Single Mass Spectrum with Optional Peak Segments
-#'
-#' @description
-#' Draws a single mass spectrum as a line plot using `ggplot2`. When a peak
-#' table is supplied, vertical segments are drawn from zero to each peak
-#' intensity. Requires the suggested package `ggplot2`.
-#'
-#' @param spectrum A numeric matrix or data frame with m/z in the first column
-#'   and intensity in the second column.
-#' @param peaks Optional peak matrix or data frame. When supplied, vertical peak
-#'   segments are drawn from zero to each peak intensity.
-#' @param xlim Optional numeric vector of length two limiting the x-axis range.
-#' @param ylim Optional numeric vector of length two limiting the y-axis range.
-#' @param title Optional plot title.
-#'
-#' @return A `ggplot2` object.
-#'
-#' @seealso [plot_spectra()], [find_peaks()]
-#'
-#' @examples
-#' if (requireNamespace("ggplot2", quietly = TRUE)) {
-#'   x <- seq(1000, 2000, length.out = 1000)
-#'   y <- dnorm(x, mean = 1500, sd = 25) * 100
-#'   spectrum <- data.frame(mz = x, intensity = y)
-#'
-#'   plot_spectrum(spectrum, title = "Example spectrum")
-#' }
-#'
-#' @export
-plot_spectrum <- function(spectrum,
-                          peaks = NULL,
-                          xlim = NULL,
-                          ylim = NULL,
-                          title = NULL) {
-  .require_ggplot2()
-
-  if (!is.matrix(spectrum) && !is.data.frame(spectrum)) {
-    stop(
-      "'spectrum' must be a numeric matrix or data frame.",
-      call. = FALSE
-    )
-  }
-
-  if (ncol(spectrum) < 2L) {
-    stop(
-      "'spectrum' must have at least two columns: m/z and intensity.",
-      call. = FALSE
-    )
-  }
-
-  df <- data.frame(
-    mz = spectrum[, 1],
-    intensity = spectrum[, 2],
-    stringsAsFactors = FALSE
-  )
-
-  p <- ggplot2::ggplot(df, ggplot2::aes(x = .data$mz, y = .data$intensity)) +
-    ggplot2::geom_line(linewidth = 0.5) +
-    ggplot2::labs(
-      title = title,
-      x = "m/z",
-      y = "Intensity"
-    ) +
-    ggplot2::theme_minimal()
-
-  if (!is.null(peaks)) {
-    if (!is.matrix(peaks) && !is.data.frame(peaks)) {
-      stop(
-        "'peaks' must be a numeric matrix or data frame, or NULL.",
-        call. = FALSE
-      )
-    }
-
-    if (ncol(peaks) >= 2L && nrow(peaks) > 0L) {
-      pk <- data.frame(
-        mz = peaks[, 1],
-        intensity = peaks[, 2],
-        stringsAsFactors = FALSE
-      )
-
-      p <- p + ggplot2::geom_segment(
-        data = pk,
-        ggplot2::aes(
-          x = .data$mz,
-          xend = .data$mz,
-          y = 0,
-          yend = .data$intensity
-        ),
-        inherit.aes = FALSE,
-        linewidth = 0.6,
-        color = "firebrick"
-      )
-    }
-  }
-
-  .with_axis_limits(p, xlim = xlim, ylim = ylim)
-}
-
-#' @name plot_spectra
-#' @title Plot One or More Mass Spectra
-#'
-#' @description
-#' Draws one or more mass spectra as overlaid line plots, colored by sample.
-#' Accepts a single spectrum or a named list of spectra. Requires the suggested
-#' package `ggplot2`.
-#'
-#' @param spectra A spectrum matrix/data frame or named list of spectra.
-#' @param xlim Optional numeric vector of length two limiting the x-axis range.
-#' @param ylim Optional numeric vector of length two limiting the y-axis range.
-#' @param title Optional plot title.
-#'
-#' @return A `ggplot2` object.
-#'
-#' @seealso [plot_spectrum()]
-#'
-#' @examples
-#' if (requireNamespace("ggplot2", quietly = TRUE)) {
-#'   x <- seq(1000, 2000, length.out = 1000)
-#'   spectra <- list(
-#'     sample_1 = data.frame(mz = x, intensity = dnorm(x, 1400, 25) * 100),
-#'     sample_2 = data.frame(mz = x, intensity = dnorm(x, 1600, 25) * 80)
-#'   )
-#'
-#'   plot_spectra(spectra, title = "Example spectra")
-#' }
-#'
-#' @export
-plot_spectra <- function(spectra,
-                         xlim = NULL,
-                         ylim = NULL,
-                         title = NULL) {
-  .require_ggplot2()
-
-  if (is.matrix(spectra) || is.data.frame(spectra)) {
-    spectra <- list(spectrum = spectra)
-  }
-
-  if (!is.list(spectra) || length(spectra) < 1L) {
-    stop(
-      "'spectra' must be a spectrum object or a non-empty list of spectra.",
-      call. = FALSE
-    )
-  }
-
-  if (is.null(names(spectra))) {
-    names(spectra) <- as.character(seq_along(spectra))
-  }
-
-  df <- do.call(
-    rbind,
-    lapply(names(spectra), function(nm) {
-      sp <- spectra[[nm]]
-      data.frame(
-        sample = nm,
-        mz = sp[, 1],
-        intensity = sp[, 2],
-        stringsAsFactors = FALSE
-      )
-    })
-  )
-
-  p <- ggplot2::ggplot(
-    df,
-    ggplot2::aes(x = .data$mz, y = .data$intensity, color = .data$sample)
-  ) +
-    ggplot2::geom_line(linewidth = 0.5) +
-    ggplot2::labs(
-      title = title,
-      x = "m/z",
-      y = "Intensity",
-      color = "Sample"
-    ) +
-    ggplot2::theme_minimal()
-
-  .with_axis_limits(p, xlim = xlim, ylim = ylim)
-}
-
 #' @name heatmap_matched_matrix
 #' @title Heatmap of a Sample-by-Marker Matched-Peak Matrix
 #'
@@ -390,4 +212,54 @@ heatmap_matched_matrix <- function(matched_matrix,
   }
 
   do.call(pheatmap::pheatmap, pheatmap_args)
+}
+
+#' @name .zero_centered_heatmap_scale
+#' @title Symmetric breaks and diverging colors centered at zero
+#' @keywords internal
+#' @noRd
+.zero_centered_heatmap_scale <- function(mat, n = 100L) {
+  vals <- mat[is.finite(mat)]
+  if (length(vals) == 0L) {
+    return(NULL)
+  }
+
+  max_abs <- max(abs(vals), na.rm = TRUE)
+  if (max_abs <= 0) {
+    max_abs <- 1
+  }
+
+  breaks <- seq(-max_abs, max_abs, length.out = n + 1L)
+  colors <- grDevices::colorRampPalette(c("#2166AC", "#F7F7F7", "#B2182B"))(n)
+
+  list(breaks = breaks, color = colors)
+}
+
+#' @name .group_annotation_colors
+#' @title Fixed Viridis colors for row group annotation in pheatmap
+#' @keywords internal
+#' @noRd
+.group_annotation_colors <- function(group_values) {
+  group_factor <- factor(group_values)
+  levels <- levels(group_factor)
+  n_levels <- length(levels)
+
+  if (n_levels < 1L) {
+    return(NULL)
+  }
+
+  if (!requireNamespace("colorspace", quietly = TRUE)) {
+    stop(
+      "Package 'colorspace' is required for group annotation colors in ",
+      "heatmap_matched_matrix(). Install it with install.packages('colorspace').",
+      call. = FALSE
+    )
+  }
+
+  list(
+    group = stats::setNames(
+      colorspace::sequential_hcl(n_levels, palette = "Viridis"),
+      levels
+    )
+  )
 }

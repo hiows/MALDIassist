@@ -19,11 +19,10 @@
 #'
 #' @section Suggested packages:
 #' Some functions require optional packages that are only loaded when used:
-#' * [plot_spectrum()], [plot_spectra()]: `ggplot2`
+#' * [visualize_spectrum()], [visualize_spectra()]: `colorspace`
 #' * [heatmap_matched_matrix()]: `pheatmap`
 #'
 #' @useDynLib MALDIassist, .registration = TRUE
 #' @importFrom Rcpp evalCpp
-#' @importFrom rlang .data
-#' @importFrom stats hclust dist complete.cases
+#' @importFrom stats complete.cases
 "_PACKAGE"

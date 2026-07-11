@@ -31,8 +31,8 @@ intensity, prominence, and strength
 
 Some functions require optional packages that are only loaded when used:
 \itemize{
-\item \code{\link[=plot_spectrum]{plot_spectrum()}}, \code{\link[=plot_spectra]{plot_spectra()}}: \code{ggplot2}
-\item 
+\item \code{\link[=visualize_spectrum]{visualize_spectrum()}}, \code{\link[=visualize_spectra]{visualize_spectra()}}: \code{colorspace}
+\item \code{\link[=heatmap_matched_matrix]{heatmap_matched_matrix()}}: \code{pheatmap}
 }
 }
 

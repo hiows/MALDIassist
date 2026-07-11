@@ -119,10 +119,10 @@ fp_r <- fp[fp$mz >= example_range[1] & fp$mz <= example_range[2], ]
 segments(fp_r$mz, 0, fp_r$mz, fp_r$intensity, col = "blue", lwd = 1.5)
 ```
 
-You can also overlay all spectra with `ggplot2`:
+You can also overlay all spectra in a single base-R plot:
 
 ```r
-plot_spectra(spectra = preprocessed_spectra)
+visualize_spectra(spectra = preprocessed_spectra)
 ```
 
 ---
@@ -224,14 +224,14 @@ Applied to a real two-species CPE cohort, the significant markers cleanly separa
 | `align_spectra()` | Align spectra to internal standards (linear / lowess) |
 | `build_matched_matrix()` | Assemble a cohort peak intensity matrix |
 | `estimate_significance()` | Two-group significance testing per m/z feature |
-| `plot_spectrum()` / `plot_spectra()` | Visualize spectra (requires `ggplot2`) |
+| `visualize_spectrum()` / `visualize_spectra()` | Visualize spectra with base-R graphics |
 | `heatmap_matched_matrix()` | Heatmap of a matched-peak matrix (requires `pheatmap`) |
 
 ### Suggested packages
 
 Some functions load optional packages only when used:
 
-- `plot_spectrum()`, `plot_spectra()` → `ggplot2`
+- `visualize_spectra()` → `colorspace`
 - `heatmap_matched_matrix()` → `pheatmap`
 
 ---
@@ -255,7 +255,7 @@ A BibTeX entry:
   title  = {MALDIassist: Mathematical Utilities for MALDI-TOF Mass Spectrometry},
   author = {Wonseok Oh},
   year   = {2026},
-  note   = {R package version 0.1.2},
+  note   = {R package version 0.1.3},
   url    = {https://github.com/hiows/MALDIassist}
 }
 ```
@@ -263,6 +263,12 @@ A BibTeX entry:
 > A DOI will be added here once the release is archived on Zenodo.
 
 ## Changelog
+
+### v0.1.3
+
+- Rename `plot_spectrum()` / `plot_spectra()` to `visualize_spectrum()` / `visualize_spectra()` and reimplement with base-R graphics (no `ggplot2`)
+- Split plotting code into `R/plot.R` (spectra) and `R/heatmap.R` (matched-matrix heatmap)
+- Drop the `ggplot2` and `rlang` dependencies
 
 ### v0.1.2
 

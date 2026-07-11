@@ -1,6 +1,6 @@
 Package: MALDIassist
 Title: Mathematical Utilities for MALDI-TOF Mass Spectrometry
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: 
     person("Wonseok", "Oh", , "125277369+hiows@users.noreply.github.com", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0002-0687-8466"))
@@ -16,7 +16,6 @@ BugReports: https://github.com/hiows/MALDIassist/issues
 Encoding: UTF-8
 Imports:
     Rcpp,
-    rlang,
     gtools
 LinkingTo:
     Rcpp
