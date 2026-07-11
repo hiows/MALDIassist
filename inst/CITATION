@@ -1,13 +1,12 @@
 citHeader("To cite MALDIassist in publications, please use:")
 
-## Software (archive on Zenodo).
-## Replace the Zenodo DOI once the tagged release is archived.
+## Software (archived on Zenodo).
 bibentry(
   bibtype  = "Manual",
   title    = "MALDIassist: Mathematical Utilities for MALDI-TOF Mass Spectrometry",
   author   = person("Wonseok", "Oh", comment = c(ORCID = "0009-0002-0687-8466")),
   year     = "2026",
   note     = "R package version 0.1.3",
-  url      = "https://github.com/hiows/MALDIassist"
-  # doi    = "10.5281/zenodo.XXXXXXX"  # Add the Zenodo DOI once the release is archived.
+  url      = "https://github.com/hiows/MALDIassist",
+  doi      = "10.5281/zenodo.21307258"
 )

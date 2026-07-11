@@ -256,11 +256,12 @@ A BibTeX entry:
   author = {Wonseok Oh},
   year   = {2026},
   note   = {R package version 0.1.3},
-  url    = {https://github.com/hiows/MALDIassist}
+  url    = {https://github.com/hiows/MALDIassist},
+  doi    = {10.5281/zenodo.21307258}
 }
 ```
 
-> A DOI will be added here once the release is archived on Zenodo.
+Archived on Zenodo: [10.5281/zenodo.21307258](https://doi.org/10.5281/zenodo.21307258) (v0.1.3). To cite the software regardless of version, use the concept DOI [10.5281/zenodo.21219451](https://doi.org/10.5281/zenodo.21219451).
 
 ## Changelog
 
