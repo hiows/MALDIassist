@@ -14,7 +14,7 @@
 #'   is `TRUE`.
 #' @param col_cluster Logical indicating whether to cluster columns. The
 #'   default is `TRUE`.
-#' @param groups Optional group labels for sample annotation. When supplied,
+#' @param group Optional group labels for sample annotation. When supplied,
 #'   group colors use a fixed `colorspace` Viridis palette.
 #' @param title Optional plot title.
 #' @param center_at_zero Logical. When `TRUE` (default), uses a diverging
@@ -51,7 +51,7 @@
 heatmap_matched_matrix <- function(matched_matrix,
                                    row_cluster = TRUE,
                                    col_cluster = TRUE,
-                                   groups = NULL,
+                                   group = NULL,
                                    title = "Matched peaks heatmap",
                                    center_at_zero = TRUE,
                                    hide_rownames = FALSE,
@@ -154,24 +154,24 @@ heatmap_matched_matrix <- function(matched_matrix,
 
   annotation_row <- NULL
 
-  if (!is.null(groups)) {
-    if (length(groups) != nrow(mat)) {
+  if (!is.null(group)) {
+    if (length(group) != nrow(mat)) {
       stop(
-        "'groups' must have the same length as the number of rows in 'matched_matrix'.",
+        "'group' must have the same length as the number of rows in 'matched_matrix'.",
         call. = FALSE
       )
     }
 
-    group_values <- if (!is.null(names(groups))) {
-      if (!all(rownames(mat) %in% names(groups))) {
+    group_values <- if (!is.null(names(group))) {
+      if (!all(rownames(mat) %in% names(group))) {
         stop(
-          "When 'groups' is named, its names must include all row names in 'matched_matrix'.",
+          "When 'group' is named, its names must include all row names in 'matched_matrix'.",
           call. = FALSE
         )
       }
-      groups[rownames(mat)]
+      group[rownames(mat)]
     } else {
-      groups
+      group
     }
 
     annotation_row <- data.frame(

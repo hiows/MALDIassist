@@ -8,7 +8,7 @@ heatmap_matched_matrix(
   matched_matrix,
   row_cluster = TRUE,
   col_cluster = TRUE,
-  groups = NULL,
+  group = NULL,
   title = "Matched peaks heatmap",
   center_at_zero = TRUE,
   hide_rownames = FALSE,
@@ -17,7 +17,7 @@ heatmap_matched_matrix(
 }
 \arguments{
 \item{matched_matrix}{A numeric matrix with samples as rows and markers as
-columns, such as the \code{detected_mz_matrix} or \code{delta_mz_matrix} element of
+columns, such as the \code{detected_matrix} or \code{delta_mz_matrix} element of
 \code{\link[=build_matched_matrix]{build_matched_matrix()}}.}
 
 \item{row_cluster}{Logical indicating whether to cluster rows. The default
@@ -26,7 +26,7 @@ is \code{TRUE}.}
 \item{col_cluster}{Logical indicating whether to cluster columns. The
 default is \code{TRUE}.}
 
-\item{groups}{Optional group labels for sample annotation. When supplied,
+\item{group}{Optional group labels for sample annotation. When supplied,
 group colors use a fixed \code{colorspace} Viridis palette.}
 
 \item{title}{Optional plot title.}
@@ -45,7 +45,7 @@ A \code{pheatmap} object.
 }
 \description{
 Draws a clustered heatmap of a sample-by-marker matched-peak matrix, such as
-the \code{detected_mz_matrix} or \code{delta_mz_matrix} returned by
+the \code{detected_matrix} or \code{delta_mz_matrix} returned by
 \code{\link[=build_matched_matrix]{build_matched_matrix()}}, with optional group annotation and a zero-centered
 diverging palette. Requires the suggested package \code{pheatmap}.
 }

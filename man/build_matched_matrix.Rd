@@ -29,13 +29,13 @@ The default is \code{"nearest_mz"}.}
 \value{
 A list with elements:
 \describe{
-\item{detected_mz_matrix}{Numeric matrix with samples as rows and markers
-as columns, holding the detected m/z of each matched peak. Column names
-are \code{reference_names} when supplied, otherwise \code{paste0("mz_", round(reference_mz, 3))}. Columns with no matched peak in any sample
-are removed. Unmatched cells remain \code{NA}; matched cells can be
-identified with \code{!is.na(detected_mz_matrix)}.}
+\item{detected_matrix}{Integer matrix with samples as rows and markers
+as columns, holding \code{1} where a peak was matched and \code{0} otherwise.
+Column names are \code{reference_names} when supplied, otherwise
+\code{paste0("mz_", round(reference_mz, 3))}. Columns with no matched peak
+in any sample are removed.}
 \item{delta_mz_matrix}{Numeric matrix with the same dimensions as
-\code{detected_mz_matrix}, holding the signed m/z difference
+\code{detected_matrix}, holding the signed m/z difference
 (\code{detected_mz - reference_mz}). Unmatched cells remain \code{NA}.}
 \item{reference_mz}{Reference m/z values retained in the matrices.}
 \item{reference_names}{Marker names retained in the matrices, if
@@ -61,7 +61,7 @@ result <- build_matched_matrix(
   hws_match = 10
 )
 
-result$detected_mz_matrix
+result$detected_matrix
 
 }
 \seealso{

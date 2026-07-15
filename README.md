@@ -129,25 +129,77 @@ visualize_spectra(spectra = preprocessed_spectra)
 
 ## Cohort analysis
 
-Once each sample has a filtered peak table, build a cohort-level feature matrix in four steps: **align → frequent m/z discovery → matrix assembly → significance testing**.
+The example below follows a two-species MALDI-TOF cohort from [PRIDE PXD058284](https://www.ebi.ac.uk/pride/archive/projects/PXD058284): load Bruker spectra and sample metadata, preprocess and pick peaks, align across samples, build a matched-peak matrix, and test for group-discriminating m/z features.
 
-### 1. Align spectra
+### 1. Load spectra and metadata
+
+```r
+library(readxl)
+
+raw_spectra <- load_maldi_spectra(spectra_dir = "data/raw/")
+metadata    <- read_xlsx("data/sample_metadata.xlsx")
+
+# two-level species grouping (one label per sample)
+sample_group <- metadata$Species[match(names(raw_spectra), metadata$SampleID)]
+```
+
+### 2. Preprocess, KDE, and peak picking
+
+```r
+preprocessed_spectra <- preprocess_maldi_spectra(
+  spectra       = raw_spectra,
+  hws_sg        = 10,
+  pno_sg        = 3,
+  baseline_type = "snip",
+  iter_snip     = 50,
+  n_cores       = 4
+)
+
+kde_spectra <- build_kde_spectra(
+  spectra = preprocessed_spectra,
+  bw      = 1,
+  n_cores = 4
+)
+
+peaks_list <- find_peaks_spectra(
+  spectra                    = preprocessed_spectra,
+  bw                         = 1,
+  hws_peaks                  = 10,
+  weight_type                = "raw",
+  cutoff_kappa_peak_strength = 0.3,
+  peak_retention_fraction    = 0.25,
+  n_cores                    = 4
+)
+
+filtered_peaks_list <- filter_peaks_spectra(
+  spectra                = lapply(kde_spectra, `[[`, 1),
+  peaks_list             = peaks_list,
+  cutoff_peak_intensity  = 100,
+  cutoff_peak_prominence = 50,
+  cutoff_peak_strength   = 0.5,
+  normalization_type     = "raw",
+  n_cores                = 4
+)
+```
+
+### 3. Align spectra
 
 `align_spectra()` corrects m/z drift using internal standards selected from frequent, high-intensity peaks. Choose `"linear"` (two-point) or `"lowess"` (multi-point) alignment. It returns one aligned `spectrum` / `peaks` pair per sample (in `alignment_results`) plus the reference `standard_mz` values used as anchors.
 
 ```r
 aligned <- align_spectra(
-  spectra        = preprocessed_spectra,
+  spectra        = lapply(kde_spectra, `[[`, 1),
   peaks_list     = filtered_peaks_list,
-  alignment_mode = "linear"  # or "lowess"
+  bin_width      = 20,
+  alignment_mode = "linear",  # or "lowess"
+  hws_alignment  = 50
 )
 
-aligned_spectra <- lapply(aligned$alignment_results, `[[`, "spectrum")
-aligned_peaks   <- lapply(aligned$alignment_results, `[[`, "peaks")
-exclude_mz      <- aligned$standard_mz   # alignment anchors, excluded below
+aligned_peaks <- lapply(aligned$alignment_results, `[[`, "peaks")
+exclude_mz    <- aligned$standard_mz   # alignment anchors, excluded below
 ```
 
-### 2. Find frequent m/z values
+### 4. Find frequent m/z values
 
 `find_frequent_mz()` scans pooled peak m/z values across the aligned samples and refines each bin location with Gaussian KDE. Pass the alignment anchors to `exclude_mz` so the internal standards are dropped from the feature set.
 
@@ -159,15 +211,15 @@ freq_mz <- find_frequent_mz(
 )
 ```
 
-### 3. Build a matched peak matrix
+### 5. Build a matched peak matrix
 
 `build_matched_matrix()` matches each sample's peaks to the frequent m/z references and returns a detection matrix (`detected_matrix`) and a signed m/z-difference matrix (`delta_mz_matrix`), both sample-by-marker.
 
 ```r
 matched <- build_matched_matrix(
-  peaks_list    = aligned_peaks,
-  reference_mz  = freq_mz$mz,
-  hws_match     = 10
+  peaks_list   = aligned_peaks,
+  reference_mz = freq_mz$mz,
+  hws_match    = 10
 )
 
 mat <- matched$detected_matrix
@@ -178,33 +230,33 @@ Visualize the matrix with `heatmap_matched_matrix()`, optionally annotated by a 
 ```r
 heatmap_matched_matrix(
   matched_matrix = mat,
-  groups         = sample_groups,   # one entry per sample (row)
+  group          = sample_group,   # one entry per sample (row)
   hide_rownames  = TRUE,
   hide_colnames  = TRUE
 )
 ```
 
-### 4. Test for significant m/z features
+### 6. Test for significant m/z features
 
 `estimate_significance()` runs a per-feature two-group comparison (t-test or Wilcoxon) on a sample-by-marker matrix and returns raw and adjusted p-values. Subset the matrix to the significant markers to highlight the discriminating features.
 
 ```r
 sig <- estimate_significance(
   matched_matrix = mat,
-  group          = sample_groups,   # two-level grouping, one entry per sample
+  group          = sample_group,   # two-level grouping, one entry per sample
   stat_method    = "t.test",        # or "wilcox"
   adj_method     = "BH"             # "none", "BH", or "bonferroni"
 )
 
 heatmap_matched_matrix(
   matched_matrix = mat[, which(sig$adj_pvalue < 0.01)],
-  groups         = sample_groups,
+  group          = sample_group,
   hide_rownames  = TRUE,
   hide_colnames  = TRUE
 )
 ```
 
-Applied to a real two-species CPE cohort, the significant markers cleanly separate the samples by species:
+Applied to the PXD058284 two-species cohort (*E. coli* vs *K. pneumoniae*), the significant markers cleanly separate the samples by species:
 
 ![Cohort matched-peak heatmap](man/figures/README-cohort-heatmap.png)
 
@@ -255,15 +307,20 @@ A BibTeX entry:
   title  = {MALDIassist: Mathematical Utilities for MALDI-TOF Mass Spectrometry},
   author = {Wonseok Oh},
   year   = {2026},
-  note   = {R package version 0.1.3},
+  note   = {R package version 1.0.0},
   url    = {https://github.com/hiows/MALDIassist},
   doi    = {10.5281/zenodo.21307258}
 }
 ```
 
-Archived on Zenodo: [10.5281/zenodo.21307258](https://doi.org/10.5281/zenodo.21307258) (v0.1.3). To cite the software regardless of version, use the concept DOI [10.5281/zenodo.21219451](https://doi.org/10.5281/zenodo.21219451).
+Archived on Zenodo: [10.5281/zenodo.21307258](https://doi.org/10.5281/zenodo.21307258) (v0.1.3). A v1.0.0 archive will be published with the next GitHub release. To cite the software regardless of version, use the concept DOI [10.5281/zenodo.21219451](https://doi.org/10.5281/zenodo.21219451).
 
 ## Changelog
+
+### v1.0.0
+
+- **Breaking:** `heatmap_matched_matrix()`: rename argument `groups` → `group` (aligns with `estimate_significance()`)
+- Update cohort-analysis README examples and regenerate heatmap figure using PXD058284-based workflow
 
 ### v0.1.3
 
