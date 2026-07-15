@@ -35,7 +35,7 @@ remotes::install_github("hiows/MALDIassist")
 
 ## Quick start
 
-The pipeline follows five steps: **load → preprocess → peak picking → peak filtering → visualization**.
+The pipeline follows six steps: **load → preprocess → KDE → peak picking → peak filtering → visualization**.
 
 ```r
 library(MALDIassist)
@@ -59,8 +59,18 @@ preprocessed_spectra <- preprocess_maldi_spectra(
   hws_sg        = 10,      # half-window size for Savitzky-Golay
   pno_sg        = 3,       # polynomial order
   baseline_type = "snip",  # baseline algorithm
-  iter_snip     = 100,     # SNIP iterations
+  iter_snip     = 50,      # SNIP iterations
   n_cores       = 4
+)
+```
+
+Build Gaussian KDE spectra for peak filtering:
+
+```r
+kde_spectra <- build_kde_spectra(
+  spectra = preprocessed_spectra,
+  bw      = 1,
+  n_cores = 4
 )
 ```
 
@@ -75,6 +85,7 @@ peaks_list <- find_peaks_spectra(
   hws_peaks                  = 10,
   weight_type                = "raw",
   cutoff_kappa_peak_strength = 0.3,
+  peak_retention_fraction    = 0.25,
   n_cores                    = 4
 )
 ```
@@ -85,12 +96,13 @@ peaks_list <- find_peaks_spectra(
 
 ```r
 filtered_peaks_list <- filter_peaks_spectra(
-  spectra                = preprocessed_spectra,
+  spectra                = lapply(kde_spectra, `[[`, 1),
   peaks_list             = peaks_list,
   cutoff_peak_intensity  = 100,
-  cutoff_peak_prominence = 100,
+  cutoff_peak_prominence = 50,
   cutoff_peak_strength   = 0.5,
-  normalization_type     = "raw"
+  normalization_type     = "raw",
+  n_cores                = 4
 )
 ```
 
@@ -321,6 +333,7 @@ Archived on Zenodo: [10.5281/zenodo.21307258](https://doi.org/10.5281/zenodo.213
 
 - **Breaking:** `heatmap_matched_matrix()`: rename argument `groups` → `group` (aligns with `estimate_significance()`)
 - Update cohort-analysis README examples and regenerate heatmap figure using PXD058284-based workflow
+- Align Quick start README preprocessing/peak-picking parameters with the cohort-analysis example
 
 ### v0.1.3
 
