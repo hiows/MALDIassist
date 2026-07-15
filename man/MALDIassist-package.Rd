@@ -45,11 +45,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Wonseok Oh \email{125277369+hiows@users.noreply.github.com} (\href{https://orcid.org/0009-0002-0687-8466}{ORCID})
+\strong{Maintainer}: Wonseok Oh \email{hiows97@gmail.com} (\href{https://orcid.org/0009-0002-0687-8466}{ORCID})
 
 Authors:
 \itemize{
-  \item Wonseok Oh \email{125277369+hiows@users.noreply.github.com} (\href{https://orcid.org/0009-0002-0687-8466}{ORCID})
+  \item Wonseok Oh \email{hiows97@gmail.com} (\href{https://orcid.org/0009-0002-0687-8466}{ORCID})
 }
 
 }

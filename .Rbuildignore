@@ -2,3 +2,6 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^\.github$
+^\.zenodo\.json$
+^README\.md$
+^cran-comments\.md$

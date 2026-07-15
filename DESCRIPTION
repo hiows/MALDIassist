@@ -2,7 +2,7 @@ Package: MALDIassist
 Title: Mathematical Utilities for MALDI-TOF Mass Spectrometry
 Version: 1.0.0
 Authors@R: 
-    person("Wonseok", "Oh", , "125277369+hiows@users.noreply.github.com", role = c("aut", "cre"),
+    person("Wonseok", "Oh", , "hiows97@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0002-0687-8466"))
 Description: Tools for MALDI-TOF mass spectrometry workflows in R, covering the
     path from raw Bruker spectra to a cohort-level peak matrix. Includes loading
@@ -14,10 +14,17 @@ License: MIT + file LICENSE
 URL: https://github.com/hiows/MALDIassist
 BugReports: https://github.com/hiows/MALDIassist/issues
 Encoding: UTF-8
+Depends:
+    R (>= 4.1.0)
 Imports:
     Rcpp,
     gtools
 LinkingTo:
     Rcpp
+Suggests:
+    colorspace,
+    pheatmap,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
 Config/roxygen2/version: 8.0.0

@@ -48,13 +48,15 @@ Draws one or more mass spectra as overlaid base-R line plots, colored by a
 sequential palette. No legend is drawn.
 }
 \examples{
-x <- seq(1000, 2000, length.out = 1000)
-spectra <- list(
-  sample_1 = data.frame(mz = x, intensity = dnorm(x, 1400, 25) * 100),
-  sample_2 = data.frame(mz = x, intensity = dnorm(x, 1600, 25) * 80)
-)
+if (requireNamespace("colorspace", quietly = TRUE)) {
+  x <- seq(1000, 2000, length.out = 1000)
+  spectra <- list(
+    sample_1 = data.frame(mz = x, intensity = dnorm(x, 1400, 25) * 100),
+    sample_2 = data.frame(mz = x, intensity = dnorm(x, 1600, 25) * 80)
+  )
 
-visualize_spectra(spectra, main = "Example spectra")
+  visualize_spectra(spectra, main = "Example spectra")
+}
 
 }
 \seealso{

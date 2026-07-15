@@ -31,6 +31,9 @@
 #'
 #' @seealso [visualize_spectra()], [find_peaks()]
 #'
+#' @importFrom graphics lines plot segments text
+#' @importFrom utils head
+#'
 #' @examples
 #' x <- seq(1000, 2000, length.out = 1000)
 #' y <- dnorm(x, mean = 1500, sd = 25) * 100
@@ -146,13 +149,15 @@ visualize_spectrum <- function(spectrum,
 #' @seealso [visualize_spectrum()]
 #'
 #' @examples
-#' x <- seq(1000, 2000, length.out = 1000)
-#' spectra <- list(
-#'   sample_1 = data.frame(mz = x, intensity = dnorm(x, 1400, 25) * 100),
-#'   sample_2 = data.frame(mz = x, intensity = dnorm(x, 1600, 25) * 80)
-#' )
+#' if (requireNamespace("colorspace", quietly = TRUE)) {
+#'   x <- seq(1000, 2000, length.out = 1000)
+#'   spectra <- list(
+#'     sample_1 = data.frame(mz = x, intensity = dnorm(x, 1400, 25) * 100),
+#'     sample_2 = data.frame(mz = x, intensity = dnorm(x, 1600, 25) * 80)
+#'   )
 #'
-#' visualize_spectra(spectra, main = "Example spectra")
+#'   visualize_spectra(spectra, main = "Example spectra")
+#' }
 #'
 #' @export
 visualize_spectra <- function(spectra,
