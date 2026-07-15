@@ -31,8 +31,8 @@ intensity, prominence, and strength
 
 Some functions require optional packages that are only loaded when used:
 \itemize{
-\item \code{\link[=visualize_spectrum]{visualize_spectrum()}}, \code{\link[=visualize_spectra]{visualize_spectra()}}: \code{colorspace}
-\item 
+\item \code{\link{visualize_spectrum}}, \code{\link{visualize_spectra}}: colorspace
+\item \code{\link{heatmap_matched_matrix}}: pheatmap
 }
 }
 

@@ -19,8 +19,10 @@
 #'
 #' @section Suggested packages:
 #' Some functions require optional packages that are only loaded when used:
-#' * [visualize_spectrum()], [visualize_spectra()]: `colorspace`
-#' * [heatmap_matched_matrix()]: `pheatmap`
+#' \itemize{
+#'   \item \code{\link{visualize_spectrum}}, \code{\link{visualize_spectra}}: colorspace
+#'   \item \code{\link{heatmap_matched_matrix}}: pheatmap
+#' }
 #'
 #' @useDynLib MALDIassist, .registration = TRUE
 #' @importFrom Rcpp evalCpp
