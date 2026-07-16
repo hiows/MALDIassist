@@ -8,5 +8,5 @@ bibentry(
   year     = "2026",
   note     = "R package version 1.0.0",
   url      = "https://github.com/hiows/MALDIassist",
-  doi      = "10.5281/zenodo.21307258"
+  doi      = "10.5281/zenodo.21376279"
 )
