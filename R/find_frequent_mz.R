@@ -68,7 +68,8 @@
 #'   exclude_mz = NULL
 #' )
 #'
-#' @seealso [find_peaks()], [get_gauss_kde()], [find_extrema()]
+#' @seealso [filter_overlap_mz()], [find_peaks()], [get_gauss_kde()],
+#'   [find_extrema()]
 #'
 #' @export
 find_frequent_mz <- function(peaks_list,

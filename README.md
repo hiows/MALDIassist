@@ -32,6 +32,8 @@ You can install the development version from GitHub:
 remotes::install_github("hiows/MALDIassist")
 ```
 
+CRAN submission of v1.0.0 is under review. Until the package is on CRAN, the latest version may be available from GitHub (`main` or the latest Release).
+
 ---
 
 ## Quick start
@@ -286,6 +288,7 @@ Applied to the PXD058284 two-species cohort (*E. coli* vs *K. pneumoniae*), the 
 | `filter_peaks()` / `filter_peaks_spectra()` | Filter peaks by intensity, prominence, and strength |
 | `build_kde_spectrum()` / `build_kde_spectra()` | Build Gaussian KDE spectra (single / list) |
 | `find_frequent_mz()` | Find frequent m/z values across a cohort |
+| `filter_overlap_mz()` | Remove overlapping nearby frequent m/z features |
 | `align_spectra()` | Align spectra to internal standards (linear / lowess) |
 | `build_matched_matrix()` | Assemble a cohort peak intensity matrix |
 | `estimate_significance()` | Two-group significance testing per m/z feature |
@@ -320,15 +323,20 @@ A BibTeX entry:
   title  = {MALDIassist: Mathematical Utilities for MALDI-TOF Mass Spectrometry},
   author = {Wonseok Oh},
   year   = {2026},
-  note   = {R package version 1.0.0},
+  note   = {R package version 1.0.1},
   url    = {https://github.com/hiows/MALDIassist},
   doi    = {10.5281/zenodo.21376279}
 }
 ```
 
-Archived on Zenodo: [10.5281/zenodo.21376279](https://doi.org/10.5281/zenodo.21376279) (v1.0.0). To cite the software regardless of version, use the concept DOI [10.5281/zenodo.21219451](https://doi.org/10.5281/zenodo.21219451).
+Archived on Zenodo: [10.5281/zenodo.21376279](https://doi.org/10.5281/zenodo.21376279) (v1.0.1). To cite the software regardless of version, use the concept DOI [10.5281/zenodo.21219451](https://doi.org/10.5281/zenodo.21219451).
 
 ## Changelog
+
+### v1.0.1
+
+- Add `filter_overlap_mz()` to remove redundant nearby frequent m/z features after `find_frequent_mz()`
+- **Breaking:** Remove `estimate_peak_boundaries()` (was exported in v1.0.0)
 
 ### v1.0.0
 

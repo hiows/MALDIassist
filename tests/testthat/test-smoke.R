@@ -46,6 +46,21 @@ test_that("build_matched_matrix assembles sample-by-marker matrix", {
   expect_equal(ncol(matched$detected_matrix), 2)
 })
 
+test_that("filter_overlap_mz keeps local freq_ratio maxima", {
+  freq_data <- data.frame(
+    mz = c(3000, 3001, 5000, 5010),
+    median_intensity = c(2.0, 1.8, 2.5, 2.1),
+    count = c(18, 10, 20, 12),
+    freq_ratio = c(0.9, 0.5, 1.0, 0.6)
+  )
+
+  out <- filter_overlap_mz(freq_data, hws_selection = 5)
+
+  expect_s3_class(out, "data.frame")
+  expect_equal(out$mz, c(3000, 5000, 5010))
+  expect_equal(out$freq_ratio, c(0.9, 1.0, 0.6))
+})
+
 test_that("subtract_baseline returns corrected spectrum data", {
   x <- seq(1, 100, length.out = 200)
   y <- sin(x / 5) + 5

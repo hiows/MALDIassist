@@ -22,6 +22,7 @@ in one spectrum or a list of spectra
 intensity, prominence, and strength
 \item \code{\link[=build_kde_spectrum]{build_kde_spectrum()}} / \code{\link[=build_kde_spectra]{build_kde_spectra()}}: build Gaussian KDE spectra
 \item \code{\link[=find_frequent_mz]{find_frequent_mz()}}: find frequent m/z values across a cohort
+\item \code{\link[=filter_overlap_mz]{filter_overlap_mz()}}: remove overlapping nearby frequent m/z features
 \item \code{\link[=align_spectra]{align_spectra()}}: align spectra to internal standards (linear / lowess)
 \item \code{\link[=build_matched_matrix]{build_matched_matrix()}}: assemble a cohort peak intensity matrix
 }

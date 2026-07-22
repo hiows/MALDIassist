@@ -14,6 +14,10 @@
 #'   is `TRUE`.
 #' @param col_cluster Logical indicating whether to cluster columns. The
 #'   default is `TRUE`.
+#' @param clustering_method Hierarchical clustering linkage method passed to
+#'   `pheatmap` / [stats::hclust()]. One of `"ward.D2"` (default), `"ward.D"`,
+#'   `"complete"`, `"average"`, `"single"`, `"mcquitty"`, `"median"`, or
+#'   `"centroid"`. Applied to both rows and columns when clustering is enabled.
 #' @param group Optional group labels for sample annotation. When supplied,
 #'   group colors use a fixed `colorspace` Viridis palette.
 #' @param title Optional plot title.
@@ -32,6 +36,7 @@
 #' When the matrix contains many `NA` values, consider setting
 #' `row_cluster = FALSE` or `col_cluster = FALSE` because clustering may be
 #' unstable with sparse data.
+#' The default linkage is `"ward.D2"` (previously `pheatmap`'s `"complete"`).
 #'
 #' @return A `pheatmap` object.
 #'
@@ -51,6 +56,7 @@
 heatmap_matched_matrix <- function(matched_matrix,
                                    row_cluster = TRUE,
                                    col_cluster = TRUE,
+                                   clustering_method = "ward.D2",
                                    group = NULL,
                                    title = "Matched peaks heatmap",
                                    center_at_zero = TRUE,
@@ -113,6 +119,24 @@ heatmap_matched_matrix <- function(matched_matrix,
   if (!is.logical(col_cluster) || length(col_cluster) != 1L || is.na(col_cluster)) {
     stop(
       "'col_cluster' must be TRUE or FALSE.",
+      call. = FALSE
+    )
+  }
+
+  allowed_clustering_methods <- c(
+    "ward.D2", "ward.D", "complete", "average",
+    "single", "mcquitty", "median", "centroid"
+  )
+  if (!is.character(clustering_method) ||
+      length(clustering_method) != 1L ||
+      is.na(clustering_method) ||
+      !clustering_method %in% allowed_clustering_methods) {
+    stop(
+      paste0(
+        "'clustering_method' must be one of: ",
+        paste(allowed_clustering_methods, collapse = ", "),
+        "."
+      ),
       call. = FALSE
     )
   }
@@ -190,6 +214,7 @@ heatmap_matched_matrix <- function(matched_matrix,
     mat = mat,
     cluster_rows = row_cluster,
     cluster_cols = col_cluster,
+    clustering_method = clustering_method,
     annotation_row = annotation_row,
     annotation_colors = annotation_colors,
     annotation_names_row = FALSE,

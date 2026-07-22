@@ -14,6 +14,7 @@
 #'   intensity, prominence, and strength
 #' * [build_kde_spectrum()] / [build_kde_spectra()]: build Gaussian KDE spectra
 #' * [find_frequent_mz()]: find frequent m/z values across a cohort
+#' * [filter_overlap_mz()]: remove overlapping nearby frequent m/z features
 #' * [align_spectra()]: align spectra to internal standards (linear / lowess)
 #' * [build_matched_matrix()]: assemble a cohort peak intensity matrix
 #'

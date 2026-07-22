@@ -84,5 +84,6 @@ find_frequent_mz(
 
 }
 \seealso{
-\code{\link[=find_peaks]{find_peaks()}}, \code{\link[=get_gauss_kde]{get_gauss_kde()}}, \code{\link[=find_extrema]{find_extrema()}}
+\code{\link[=filter_overlap_mz]{filter_overlap_mz()}}, \code{\link[=find_peaks]{find_peaks()}}, \code{\link[=get_gauss_kde]{get_gauss_kde()}},
+\code{\link[=find_extrema]{find_extrema()}}
 }

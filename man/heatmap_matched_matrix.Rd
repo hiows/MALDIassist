@@ -8,6 +8,7 @@ heatmap_matched_matrix(
   matched_matrix,
   row_cluster = TRUE,
   col_cluster = TRUE,
+  clustering_method = "ward.D2",
   group = NULL,
   title = "Matched peaks heatmap",
   center_at_zero = TRUE,
@@ -25,6 +26,11 @@ is \code{TRUE}.}
 
 \item{col_cluster}{Logical indicating whether to cluster columns. The
 default is \code{TRUE}.}
+
+\item{clustering_method}{Hierarchical clustering linkage method passed to
+\code{pheatmap} / \code{\link[stats:hclust]{stats::hclust()}}. One of \code{"ward.D2"} (default), \code{"ward.D"},
+\code{"complete"}, \code{"average"}, \code{"single"}, \code{"mcquitty"}, \code{"median"}, or
+\code{"centroid"}. Applied to both rows and columns when clustering is enabled.}
 
 \item{group}{Optional group labels for sample annotation. When supplied,
 group colors use a fixed \code{colorspace} Viridis palette.}
@@ -57,6 +63,7 @@ especially useful for \code{delta_mz_matrix} matrices.
 When the matrix contains many \code{NA} values, consider setting
 \code{row_cluster = FALSE} or \code{col_cluster = FALSE} because clustering may be
 unstable with sparse data.
+The default linkage is \code{"ward.D2"} (previously \code{pheatmap}'s \code{"complete"}).
 }
 \examples{
 if (requireNamespace("pheatmap", quietly = TRUE)) {
