@@ -1,7 +1,7 @@
 # MALDIassist
 
 <!-- badges: start -->
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21376279.svg)](https://doi.org/10.5281/zenodo.21376279)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21492329.svg)](https://doi.org/10.5281/zenodo.21492329)
 <!-- badges: end -->
 
 **MALDIassist** provides a set of mathematical utilities for **MALDI-TOF mass spectrometry** workflows in R. It covers the full path from raw Bruker spectra to a cohort-level peak matrix:
@@ -325,11 +325,11 @@ A BibTeX entry:
   year   = {2026},
   note   = {R package version 1.0.1},
   url    = {https://github.com/hiows/MALDIassist},
-  doi    = {10.5281/zenodo.21376279}
+  doi    = {10.5281/zenodo.21492329}
 }
 ```
 
-Archived on Zenodo: [10.5281/zenodo.21376279](https://doi.org/10.5281/zenodo.21376279) (v1.0.1). To cite the software regardless of version, use the concept DOI [10.5281/zenodo.21219451](https://doi.org/10.5281/zenodo.21219451).
+Archived on Zenodo: [10.5281/zenodo.21492329](https://doi.org/10.5281/zenodo.21492329) (v1.0.1). To cite the software regardless of version, use the concept DOI [10.5281/zenodo.21219451](https://doi.org/10.5281/zenodo.21219451).
 
 ## Changelog
 
